@@ -202,7 +202,7 @@
           var jsonState = json.features[j].properties.name;
 
           if (dataState == jsonState) {
-
+            json.features[j].properties.winner = data[i].candidate;
             // Copy the data value into the JSON
             if (dataValue.includes("republican")) {
               json.features[j].properties.party = 1;
@@ -238,7 +238,24 @@
         //If value is undefined…
         return "rgb(213,222,217)";
       }
-    });
+    })
+    // Modification of custom tooltip code provided by Malcolm Maclean, "D3 Tips and Tricks"
+  	// http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
+  	.on("mouseover", function(d) {
+      	div.transition()
+        	   .duration(200)
+             .style("opacity", .9);
+             div.text(d.properties.winner)
+             .style("left", (d3.event.pageX) + "px")
+             .style("top", (d3.event.pageY - 28) + "px");
+  	})
+
+      // fade out tooltip on mouse out
+      .on("mouseout", function(d) {
+          div.transition()
+             .duration(500)
+             .style("opacity", 0);
+      });
 
   }
 </script>
