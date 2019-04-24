@@ -120,6 +120,12 @@
   var legendText = ["Democratic Victory", "Republican Victory", "Other Victory"];
 
   //Create SVG element and append map to the SVG
+  var svg = d3.select("body")
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+  // Append Div for tooltip to SVG
   var div = d3.select("body")
   .append("div")
   .attr("class", "tooltip")
@@ -132,11 +138,6 @@
 
     // Load GeoJSON data and merge with states data
     d3.json("us-states.json", function(json) {
-
-      var svg = d3.select("body")
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height);
       // Slider code
       var slider = document.getElementById("myRange");
       var output = document.getElementById("demo");
