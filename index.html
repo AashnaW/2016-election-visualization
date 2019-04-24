@@ -143,13 +143,35 @@ d3.json("us-states.json", function(json) {
   output.innerHTML = slider.value; // Display the default slider value
   visualize(data, json, year); // Display the default map
 
-  // Update the current slider value (each time you drag the slider handle)
+  //Update the current slider value (each time you drag the slider handle)
   slider.oninput = function() {
     output.innerHTML =  Math.ceil(this.value/4.0) * 4;
     year = Math.ceil(this.value/4.0) * 4;
     console.log(year);
-    visualize(data, json, year);
     d3.select("svg").remove();
+    var legend = d3.select("body").append("svg")
+          			.attr("class", "legend")
+         			.attr("width", 140)
+        			.attr("height", 200)
+       				.selectAll("g")
+       				.data(color.domain().slice().reverse())
+       				.enter()
+       				.append("g")
+         			.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+      	legend.append("rect")
+       		  .attr("width", 18)
+       		  .attr("height", 18)
+       		  .style("fill", color);
+
+      	legend.append("text")
+      		  .data(legendText)
+          	  .attr("x", 24)
+          	  .attr("y", 9)
+          	  .attr("dy", ".35em")
+          	  .text(function(d) { return d; });
+    visualize(data, json, year);
+
   }
 
 
