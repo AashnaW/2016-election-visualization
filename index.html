@@ -1,270 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head profile="http://www.w3.org/2005/10/profile">
-<link rel="icon"
-      type="image/png"
-      href="/myicon.png" />
-<meta charset="utf-8">
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<style type="text/css">
+  <link rel="icon"
+  type="image/png"
+  href="/myicon.png" />
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <style type="text/css">
 
-/* On mouse hover, lighten state color */
-path:hover {
-	fill-opacity: .7;
-}
+  /* On mouse hover, lighten state color */
+  path:hover {
+    fill-opacity: .7;
+  }
 
-/* Style for Custom Tooltip */
-div.tooltip {
- 	position: absolute;
-	text-align: center;
-	width: 60px;
-	height: 28px;
-	padding: 2px;
-	font: 12px sans-serif;
-	background: white;
-	border: 0px;
-	border-radius: 8px;
-	pointer-events: none;
-}
-.slidecontainer {
-  width: 100%; /* Width of the outside container */
-}
+  /* Style for Custom Tooltip */
+  div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 60px;
+    height: 28px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: white;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+  .slidecontainer {
+    width: 100%; /* Width of the outside container */
+  }
 
-/* The slider itself */
-.slider {
-  -webkit-appearance: none;  /* Override default CSS styles */
-  appearance: none;
-  width: 100%; /* Full-width */
-  height: 25px; /* Specified height */
-  background: #d3d3d3; /* Grey background */
-  outline: none; /* Remove outline */
-  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
-  transition: opacity .2s;
-}
+  /* The slider itself */
+  .slider {
+    -webkit-appearance: none;  /* Override default CSS styles */
+    appearance: none;
+    width: 100%; /* Full-width */
+    height: 25px; /* Specified height */
+    background: #d3d3d3; /* Grey background */
+    outline: none; /* Remove outline */
+    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+  }
 
-/* Mouse-over effects */
-.slider:hover {
-  opacity: 1; /* Fully shown on mouse-over */
-}
+  /* Mouse-over effects */
+  .slider:hover {
+    opacity: 1; /* Fully shown on mouse-over */
+  }
 
-/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-.slider::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Override default look */
-  appearance: none;
-  width: 25px; /* Set a specific slider handle width */
-  height: 25px; /* Slider handle height */
-  background: #4CAF50; /* Green background */
-  cursor: pointer; /* Cursor on hover */
-}
+  /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    background: #4CAF50; /* Green background */
+    cursor: pointer; /* Cursor on hover */
+  }
 
-.slider::-moz-range-thumb {
-  width: 25px; /* Set a specific slider handle width */
-  height: 25px; /* Slider handle height */
-  background: #4CAF50; /* Green background */
-  cursor: pointer; /* Cursor on hover */
-}
+  .slider::-moz-range-thumb {
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    background: #4CAF50; /* Green background */
+    cursor: pointer; /* Cursor on hover */
+  }
 
-/* Legend Font Style */
-body {
-	font: 11px sans-serif;
-}
+  /* Legend Font Style */
+  body {
+    font: 11px sans-serif;
+  }
 
 
-/* Legend Position Style */
-.legend {
-	position:absolute;
-	left:800px;
-	top:350px;
-}
+  /* Legend Position Style */
+  .legend {
+    position:absolute;
+    left:800px;
+    top:350px;
+  }
 
 </style>
 </head>
 <body>
-<div class="slidecontainer">
-  <input type="range" min="1976" max="2016" value="2016" class="slider" id="myRange">
-  <p>Election Year: <span id="demo"></span></p>
-</div>
+  <div class="slidecontainer">
+    <input type="range" min="1976" max="2016" value="2016" class="slider" id="myRange">
+    <p>Election Year: <span id="demo"></span></p>
+  </div>
 
-<script type="text/javascript">
+  <script type="text/javascript">
 
-/*  This visualization was made possible by modifying code provided by:
+  /*  This visualization was made possible by modifying code provided by:
 
-Scott Murray, Choropleth example from "Interactive Data Visualization for the Web"
-https://github.com/alignedleft/d3-book/blob/master/chapter_12/05_choropleth.html
+  Scott Murray, Choropleth example from "Interactive Data Visualization for the Web"
+  https://github.com/alignedleft/d3-book/blob/master/chapter_12/05_choropleth.html
 
-Malcolm Maclean, tooltips example tutorial
-http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
+  Malcolm Maclean, tooltips example tutorial
+  http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
 
-Mike Bostock, Pie Chart Legend
-http://bl.ocks.org/mbostock/3888852  */
+  Mike Bostock, Pie Chart Legend
+  http://bl.ocks.org/mbostock/3888852  */
 
-//Width and height of map
-var width = 960;
-var height = 500;
+  //Width and height of map
+  var width = 960;
+  var height = 500;
 
-// D3 Projection
-var projection = d3.geo.albersUsa()
-				   .translate([width/2, height/2])    // translate to center of screen
-				   .scale([1000]);          // scale things down so see entire US
+  // D3 Projection
+  var projection = d3.geo.albersUsa()
+  .translate([width/2, height/2])    // translate to center of screen
+  .scale([1000]);          // scale things down so see entire US
 
-// Define path generator
-var path = d3.geo.path()               // path generator that will convert GeoJSON to SVG paths
-		  	 .projection(projection);  // tell path generator to use albersUsa projection
-
-
-// Define linear scale for output
-var color = d3.scale.linear()
-			  .range(["rgb(0,255,0)","rgb(255,0,0)","rgb(0,0,255)"]);
-
-var legendText = ["Democratic Victory", "Republican Victory", "Other Victory"];
+  // Define path generator
+  var path = d3.geo.path()               // path generator that will convert GeoJSON to SVG paths
+  .projection(projection);  // tell path generator to use albersUsa projection
 
 
-// Append Div for tooltip to SVG
-var div = d3.select("body")
-		    .append("div")
-    		.attr("class", "tooltip")
-    		.style("opacity", 0);
+  // Define linear scale for output
+  var color = d3.scale.linear()
+  .range(["rgb(0,255,0)","rgb(255,0,0)","rgb(0,0,255)"]);
 
+  var legendText = ["Democratic Victory", "Republican Victory", "Other Victory"];
 
-// Load in states data!
-d3.csv("1976-2016-president.csv", function(data) {
-color.domain([0,1,2]); // setting the range of the input data
-
-// Load GeoJSON data and merge with states data
-d3.json("us-states.json", function(json) {
-
-
-  // Slider code
-  var slider = document.getElementById("myRange");
-  var output = document.getElementById("demo");
-  var year = 2016; // Display the default slider value
-
-  output.innerHTML = slider.value; // Display the default slider value
-  visualize(data, json, year); // Display the default map
-
-  //Update the current slider value (each time you drag the slider handle)
-  slider.oninput = function() {
-    output.innerHTML =  Math.ceil(this.value/4.0) * 4;
-    year = Math.ceil(this.value/4.0) * 4;
-    console.log(year);
-    d3.select("svg").remove();
-    var legend = d3.select("body").append("svg")
-          			.attr("class", "legend")
-         			.attr("width", 140)
-        			.attr("height", 200)
-       				.selectAll("g")
-       				.data(color.domain().slice().reverse())
-       				.enter()
-       				.append("g")
-         			.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-
-      	legend.append("rect")
-       		  .attr("width", 18)
-       		  .attr("height", 18)
-       		  .style("fill", color);
-
-      	legend.append("text")
-      		  .data(legendText)
-          	  .attr("x", 24)
-          	  .attr("y", 9)
-          	  .attr("dy", ".35em")
-          	  .text(function(d) { return d; });
-    visualize(data, json, year);
-
-  }
-
-
-// Modified Legend Code from Mike Bostock: http://bl.ocks.org/mbostock/3888852
-var legend = d3.select("body").append("svg")
-      			.attr("class", "legend")
-     			.attr("width", 140)
-    			.attr("height", 200)
-   				.selectAll("g")
-   				.data(color.domain().slice().reverse())
-   				.enter()
-   				.append("g")
-     			.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-
-  	legend.append("rect")
-   		  .attr("width", 18)
-   		  .attr("height", 18)
-   		  .style("fill", color);
-
-  	legend.append("text")
-  		  .data(legendText)
-      	  .attr("x", 24)
-      	  .attr("y", 9)
-      	  .attr("dy", ".35em")
-      	  .text(function(d) { return d; });
-	});
-
-});
-
-var visualize = function(data, json, year) {
   //Create SVG element and append map to the SVG
-  var svg = d3.select("body")
-  			.append("svg")
-  			.attr("width", width)
-  			.attr("height", height);
+  var div = d3.select("body")
+  .append("div")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
 
-  //Election year being analyzed
-  var prevEntryState = "";
 
-  // Loop through each state data value in the .csv file
-  for (var i = 0; i < data.length; i++) {
+  // Load in states data!
+  d3.csv("1976-2016-president.csv", function(data) {
+    color.domain([0,1,2]); // setting the range of the input data
 
-  		if (data[i].year == year && data[i].state != prevEntryState) {
-  			// Grab State Name
-  			var dataState = data[i].state;
-        prevEntryState = dataState;
-  			// Grab data value
-  			var dataValue = data[i].party;
+    // Load GeoJSON data and merge with states data
+    d3.json("us-states.json", function(json) {
 
-  			// Find the corresponding state inside the GeoJSON
-  			for (var j = 0; j < json.features.length; j++)  {
-  				var jsonState = json.features[j].properties.name;
+      var svg = d3.select("body")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height);
+      // Slider code
+      var slider = document.getElementById("myRange");
+      var output = document.getElementById("demo");
+      var year = 2016; // Display the default slider value
 
-  				if (dataState == jsonState) {
+      output.innerHTML = slider.value; // Display the default slider value
+      visualize(data, json, year, svg); // Display the default map
 
-  				// Copy the data value into the JSON
-          if (dataValue.includes("republican")) {
-            json.features[j].properties.party = 1;
-          } else if (dataValue.includes("democrat")) {
-            json.features[j].properties.party = 2;
-          } else {
-            json.features[j].properties.party = -1;
-          }
-  				// Stop looking through the JSON
-  				break;
-  				}
-  			}
-  		}
+      //Update the current slider value (each time you drag the slider handle)
+      slider.oninput = function() {
+        output.innerHTML =  Math.ceil(this.value/4.0) * 4;
+        year = Math.ceil(this.value/4.0) * 4;
+        console.log(year);
+        //d3.selectAll("svg > *").remove();
+        d3.selectAll("path").remove();
+        visualize(data, json, year, svg);
+      }
 
-  }
-  // Bind the data to the SVG and create one path per GeoJSON feature
-  svg.selectAll("path")
-  	.data(json.features)
-  	.enter()
-  	.append("path")
-  	.attr("d", path)
-  	.style("stroke", "#fff")
-  	.style("stroke-width", "1")
-  	.style("fill", function(d) {
 
-  	// Get data value
-  	var value = d.properties.party;
+      // Modified Legend Code from Mike Bostock: http://bl.ocks.org/mbostock/3888852
+      var legend = d3.select("body").append("svg")
+      .attr("class", "legend")
+      .attr("width", 140)
+      .attr("height", 200)
+      .selectAll("g")
+      .data(color.domain().slice().reverse())
+      .enter()
+      .append("g")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
 
-  	if (value) {
-  	//If value exists…
-  	return color(value);
-  	} else {
-  	//If value is undefined…
-  	return "rgb(213,222,217)";
-  	}
+      legend.append("rect")
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color);
+
+      legend.append("text")
+      .data(legendText)
+      .attr("x", 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .text(function(d) { return d; });
+    });
+
   });
 
-}
+  var visualize = function(data, json, year, svg) {
+    //Election year being analyzed
+    var prevEntryState = "";
+
+    // Loop through each state data value in the .csv file
+    for (var i = 0; i < data.length; i++) {
+
+      if (data[i].year == year && data[i].state != prevEntryState) {
+        // Grab State Name
+        var dataState = data[i].state;
+        prevEntryState = dataState;
+        // Grab data value
+        var dataValue = data[i].party;
+
+        // Find the corresponding state inside the GeoJSON
+        for (var j = 0; j < json.features.length; j++)  {
+          var jsonState = json.features[j].properties.name;
+
+          if (dataState == jsonState) {
+
+            // Copy the data value into the JSON
+            if (dataValue.includes("republican")) {
+              json.features[j].properties.party = 1;
+            } else if (dataValue.includes("democrat")) {
+              json.features[j].properties.party = 2;
+            } else {
+              json.features[j].properties.party = -1;
+            }
+            // Stop looking through the JSON
+            break;
+          }
+        }
+      }
+
+    }
+    // Bind the data to the SVG and create one path per GeoJSON feature
+    svg.selectAll("path")
+    .data(json.features)
+    .enter()
+    .append("path")
+    .attr("d", path)
+    .style("stroke", "#fff")
+    .style("stroke-width", "1")
+    .style("fill", function(d) {
+
+      // Get data value
+      var value = d.properties.party;
+
+      if (value) {
+        //If value exists…
+        return color(value);
+      } else {
+        //If value is undefined…
+        return "rgb(213,222,217)";
+      }
+    });
+
+  }
 </script>
 </body>
 </html>
